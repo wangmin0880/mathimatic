@@ -4,11 +4,11 @@ target:math
 math: area.o test.o main.o
 	g++ -o math area.o test.o main.o
 area.o:
-	g++ -c area.cpp
+	g++ -c src/area.cpp -I./ -I./test/
 test.o:
-	g++ -c test.cpp
+	g++ -c test/test.cpp -I./ -I./src/
 main.o:
-	g++ -c main.cpp
+	g++ -c test/main.cpp -I./ -I./src/
 
 clean:
 	rm *.o
