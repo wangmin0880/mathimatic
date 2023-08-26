@@ -13,6 +13,7 @@ double math_circle_area(double r)
 {
     return m_circle_area(r);
 }
+
 /*
 * annulus area
 * y = pi * (R^2 - r^2)
@@ -24,4 +25,15 @@ double math_circle_area(double r)
 double math_annulus_area(double R, double r)
 {
     return m_annulus_areaA(R,r);
+}
+
+/*
+* ellipse area
+* y = pi * a * b
+*/
+#define m_ellipse_area(a,b) (m_pi * a * b)
+
+double math_ellipse_area(double a, double b)
+{
+    return m_ellipse_area(a,b);
 }

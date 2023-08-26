@@ -1,4 +1,3 @@
-
 /*
 * This times how long it takes to run the mathimatic function.
 * remember: Do not waste time.
@@ -8,7 +7,9 @@
 */
 
 enum area_type{
-  CIRCLE,
-  ANNULUS,
+    CIRCLE,
+    ANNULUS,
+    ELLIPSE
 };
+
 double calculate_time_spend_nsec(area_type type);

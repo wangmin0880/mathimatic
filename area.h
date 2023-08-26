@@ -15,3 +15,9 @@ double math_circle_area(double r);
 * y = pi * (R + r) * (R-r)
 */
 double math_annulus_area(double R, double r);
+
+/*
+* ellipse area
+* y = pi * a * b
+*/
+double math_ellipse_area(double a, double b);

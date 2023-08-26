@@ -11,11 +11,6 @@ void test_math()
     return;
 }
 
-void test_area()
-{
-    printf("circle area S = pi * r^2 when r = 5, result : %f \n", math_circle_area(5));
-}
-
 void test_area_timespend()
 {
     printf("circle area S = pi * r^2 calculate r = 5, result : %f , time cost : %f nsec\n",
@@ -30,11 +25,18 @@ void test_annulus_timespend()
             calculate_time_spend_nsec(ANNULUS));
 }
 
+void test_ellipse_timespend()
+{
+    printf("annulus area S = pi * a * b calculate a=8, b = 5, result : %f , time cost : %f nsec\n",
+            math_ellipse_area(8,5),
+            calculate_time_spend_nsec(ELLIPSE));
+}
+
 int main()
 {
-    //test_math();
-    //test_area();
-    //test_area_timespend();
+    test_math();
+    test_area_timespend();
     test_annulus_timespend();
+    test_ellipse_timespend();
     return 0;
 }

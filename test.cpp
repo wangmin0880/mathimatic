@@ -45,6 +45,12 @@ double calculate_time_spend_nsec(area_type type)
         double annulus_area = math_annulus_area(8,5);
         clock_gettime(CLOCK_MONOTONIC,&tp_end);
     }
+    else if(type == ELLIPSE)
+    {
+         clock_gettime(CLOCK_MONOTONIC,&tp_begin);
+         double ellipse_area = math_ellipse_area(8,5);
+         clock_gettime(CLOCK_MONOTONIC,&tp_end);
+    }
 
     cost = (tp_end.tv_sec - tp_begin.tv_sec) * 1000000000 + tp_end.tv_nsec - tp_begin.tv_nsec;
     /*
