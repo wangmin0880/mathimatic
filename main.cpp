@@ -27,7 +27,7 @@ void test_annulus_timespend()
 
 void test_ellipse_timespend()
 {
-    printf("annulus area S = pi * a * b calculate a=8, b = 5, result : %f , time cost : %f nsec\n",
+    printf("ellipse area S = pi * a * b calculate a=8, b = 5, result : %f , time cost : %f nsec\n",
             math_ellipse_area(8,5),
             calculate_time_spend_nsec(ELLIPSE));
 }
