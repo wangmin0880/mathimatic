@@ -14,7 +14,7 @@
 #include "test.h"
 
 
-double calculate_time_spend_nsec()
+double calculate_time_spend_nsec(area_type type)
 {
     struct timespec tp_begin;
     struct timespec tp_end;
@@ -33,14 +33,23 @@ double calculate_time_spend_nsec()
         printf("Warning: syscall [clock_gettime] cost too much time.\n");
     }
 
-    clock_gettime(CLOCK_MONOTONIC,&tp_begin);
-    double circle_area = m_circle_area(5);
-    clock_gettime(CLOCK_MONOTONIC,&tp_end);
+    if(type == CIRCLE)
+    {
+        clock_gettime(CLOCK_MONOTONIC,&tp_begin);
+        double circle_area = math_circle_area(5);
+        clock_gettime(CLOCK_MONOTONIC,&tp_end);
+    }
+    else if(type == ANNULUS)
+    {
+        clock_gettime(CLOCK_MONOTONIC,&tp_begin);
+        double annulus_area = math_annulus_area(8,5);
+        clock_gettime(CLOCK_MONOTONIC,&tp_end);
+    }
 
     cost = (tp_end.tv_sec - tp_begin.tv_sec) * 1000000000 + tp_end.tv_nsec - tp_begin.tv_nsec;
     /*
     due to syscall not using same time. ;-)
-    Plan to use system CLOCK it self by calling this at kernel mode int the future.
+    Plan to use system CLOCK it self by calling this at kernel mode in the future.
     cost -= syscall_using_time;
     */
     return cost;

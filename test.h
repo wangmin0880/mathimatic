@@ -1,3 +1,4 @@
+
 /*
 * This times how long it takes to run the mathimatic function.
 * remember: Do not waste time.
@@ -6,4 +7,8 @@
 *                                                    ---wangmin0880@163.com
 */
 
-double calculate_time_spend_nsec();
+enum area_type{
+  CIRCLE,
+  ANNULUS,
+};
+double calculate_time_spend_nsec(area_type type);

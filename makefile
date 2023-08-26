@@ -1,8 +1,10 @@
 #bash
 target:math
 
-math: test.o main.o
-	g++ -o math test.o main.o
+math: area.o test.o main.o
+	g++ -o math area.o test.o main.o
+area.o:
+	g++ -c area.cpp
 test.o:
 	g++ -c test.cpp
 main.o:

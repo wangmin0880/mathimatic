@@ -7,5 +7,11 @@
 * circle area
 * y = pi * r^2
 */
-#define m_pi 3.1415926536
-#define m_circle_area(r) (m_pi * (r * r))
+double math_circle_area(double r);
+
+/*
+* annulus area
+* y = pi * (R^2 - r^2)
+* y = pi * (R + r) * (R-r)
+*/
+double math_annulus_area(double R, double r);
