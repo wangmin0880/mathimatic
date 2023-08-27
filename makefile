@@ -1,25 +1,29 @@
 #/bin/bash
+libsrc=$(wildcard ./src/*.cpp)
+libobj=$(patsubst %.cpp, %.o, $(libsrc))
+
+testsrc=$(wildcard ./test/*.cpp)
+testobj=$(patsubst %.cpp, %.o, $(testsrc))
+
+#1.Define the targets
 target:lib app
 
 app: math
-math: test.o main.o area.o math.o
-#	g++ -o math test.o main.o -L. -lmathimatic
-	g++ -o math test.o main.o area.o math.o
-test.o:
-	g++ -c test/test.cpp -I./ -I./include
-main.o:
-	g++ -c test/main.cpp -I./ -I./include
+math: $(testobj) $(libobj)
+#	g++ -o math $(testobj) -L. -lmathimatic
+	g++ -o math $(testobj) $(libobj)
 
+#2.Define the lib related part
 lib: dot_so dot_a
 dot_so:
-	g++ src/area.cpp src/math.cpp -fPIC -shared -o libmathimatic.so -I./ -I./include
-dot_a: area.o math.o
-	ar rc libmathimatic.a area.o math.o
-area.o:
-	g++ -c src/area.cpp -o area.o -I./ -I./include 
-math.o:
-	g++ -c src/math.cpp -o math.o -I./ -I./include
+	g++ $(libsrc) -fPIC -shared -o libmathimatic.so -I./ -I./include
+dot_a: $(libobj)
+	ar rc libmathimatic.a $(libobj)
 
+%.o:%.cpp
+	g++ -o $@ -c $< -std=c++11 -I./ -I./include
+
+#3. Define Installation for this lib
 install:
 	if [ ! -d /usr/local/lib/mathimatic ]; then \
 		sudo mkdir /usr/local/lib/mathimatic; \
@@ -27,6 +31,7 @@ install:
 	sudo cp libmathimatic.so /usr/local/lib/mathimatic/
 	sudo cp libmathimatic.conf /etc/ld.so.conf.d/
 	sudo ldconfig
+
 clean:
-	rm *.o math
+	rm $(libobj) $(testobj) math
 	rm *.a *.so
