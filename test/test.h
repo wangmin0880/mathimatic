@@ -6,10 +6,11 @@
 *                                                    ---wangmin0880@163.com
 */
 
-enum area_type{
-    CIRCLE,
-    ANNULUS,
-    ELLIPSE
+class Test
+{
+  private:
+    double cost;
+  public:
+    double calculate_time_spend_nsec();
+    virtual int mathimatic_call();
 };
-
-double calculate_time_spend_nsec(area_type type);

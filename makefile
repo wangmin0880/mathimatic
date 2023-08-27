@@ -16,7 +16,7 @@ dot_so:
 dot_a: area.o math.o
 	ar rc libmathimatic.a area.o math.o
 area.o:
-	g++ -c src/area.cpp -o area.o -I./ -I./include
+	g++ -c src/area.cpp -o area.o -I./ -I./include 
 math.o:
 	g++ -c src/math.cpp -o math.o -I./ -I./include
 
