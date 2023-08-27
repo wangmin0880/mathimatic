@@ -64,6 +64,36 @@ class Area_ellipse_test: public Area, public Test
   }
 };
 
+class Math_ecc_test: public Math, public Test
+{
+  public:
+  void test()
+  {
+    printf("ecc y^2 = x^3 + a*x + b calculate x = 8, a = 5, b= 5, result : %f , time cost : %f nsec\n",
+        math_ecc(8,5,5),
+        calculate_time_spend_nsec());
+  }
+  int mathimatic_call()
+  {
+    return math_ecc(8,5,5);
+  }
+};
+
+class Math_square_root_test: public Math, public Test
+{
+  public:
+  void test()
+  {
+    printf("square root y = sqrt x calculate x = 16, result : %f , time cost : %f nsec\n",
+        math_square_root(16),
+        calculate_time_spend_nsec());
+  }
+  int mathimatic_call()
+  {
+    return math_square_root(16);
+  }
+};
+
 int main()
 {
   Math_test math;
@@ -78,5 +108,10 @@ int main()
   Area_ellipse_test area_ellipse;
   area_ellipse.test();
 
+  Math_ecc_test math_ecc;
+  math_ecc.test();
+
+  Math_square_root_test square_root;
+  square_root.test();
   return 0;
 }

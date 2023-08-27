@@ -11,6 +11,10 @@
 /* y = x^2 */
 #define m_square(x) x*x
 
+/* y^2 = x^3 + a*x +b
+#define m_ecc(x, a, b) sqrt(x*x*x + a*x + b)
+*/
+
 int Math::math_add(int x, int y)
 {
   return m_add(x,y);
@@ -29,4 +33,33 @@ int Math::math_square(int x)
 double Math::math_square(double x)
 {
   return m_square(x);
+}
+
+double Math::math_ecc(double x, double a, double b)
+{
+  double y_square = x*x*x + a*x +b;
+  double y = math_square_root(y_square);
+  return y;
+}
+
+double Math::math_square_root(double x)
+{
+  if(x == 0)
+  {
+    return 0;
+  }
+  double xk = 1, xk1 = 0;
+  double err = 1e-6;
+
+  while(math_abs(xk - xk1) > err)
+  {
+    xk1 = xk;
+    xk = ( xk + x/xk ) / 2; //niuton
+  }
+  return xk;
+}
+
+double Math::math_abs(double x)
+{
+  return (x > 0) ? x : -x;
 }
