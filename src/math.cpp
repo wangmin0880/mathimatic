@@ -61,5 +61,5 @@ double Math::math_square_root(double x)
 
 double Math::math_abs(double x)
 {
-  return (x > 0) ? x : -x;
+  return (x >= 0) ? x : -x;
 }
