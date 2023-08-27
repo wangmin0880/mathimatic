@@ -43,8 +43,3 @@ double Test::calculate_time_spend_nsec()
   */
   return cost;
 }
-
-int Test::mathimatic_call()
-{
-  return 0;
-}

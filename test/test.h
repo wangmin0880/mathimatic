@@ -12,5 +12,5 @@ class Test
     double cost;
   public:
     double calculate_time_spend_nsec();
-    virtual int mathimatic_call();
+    virtual int mathimatic_call() = 0;
 };
