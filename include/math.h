@@ -1,3 +1,7 @@
+/*
+* We will focus on the basic mathimatic implementation this part
+*/
+
 class Math
 {
   public:

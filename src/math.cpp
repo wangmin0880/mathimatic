@@ -1,3 +1,9 @@
+/*
+* We will focus on the basic mathimatic implementation this part
+*                                                    ---wangmin0880@163.com
+*                                                    ---phone:+8618611106826
+*/
+
 #include "math.h"
 
 /* y = a + b */

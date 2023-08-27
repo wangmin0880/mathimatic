@@ -1,6 +1,5 @@
 /*
 * We will focus on the area topic this part
-*                   ----wangmin0880@163.com
 */
 
 class Area
