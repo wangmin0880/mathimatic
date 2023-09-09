@@ -5,13 +5,21 @@ libobj=$(patsubst %.cpp, %.o, $(libsrc))
 testsrc=$(wildcard ./test/*.cpp)
 testobj=$(patsubst %.cpp, %.o, $(testsrc))
 
+testutilsrc=$(wildcard ./testutil/*.cpp)
+testutilobj=$(patsubst %.cpp, %.o, $(testutilsrc))
+
 #1.Define the targets
 target:lib app
 
-app: math
+app: math jatool
 math: $(testobj) $(libobj)
 #	g++ -o math $(testobj) -L. -lmathimatic
 	g++ -o math $(testobj) $(libobj)
+
+jatool: $(testutilobj) $(libobj)
+	#	g++ -o math $(testobj) -L. -lmathimatic
+	g++ -o jatool $(testutilobj) $(libobj)
+
 
 #2.Define the lib related part
 lib: dot_so dot_a
@@ -21,7 +29,7 @@ dot_a: $(libobj)
 	ar rc libmathimatic.a $(libobj)
 
 %.o:%.cpp
-	g++ -o $@ -c $< -std=c++11 -I./ -I./include -I./util
+	g++ -o $@ -c $< -fpermissive -I./ -I./include -I./util
 
 #3. Define Installation for this lib
 install:
@@ -33,5 +41,5 @@ install:
 	sudo ldconfig
 
 clean:
-	rm $(libobj) $(testobj) math
+	rm $(libobj) $(testobj) $(testutilobj) math jatool
 	rm *.a *.so

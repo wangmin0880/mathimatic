@@ -4,8 +4,8 @@
 
 /**
  * double linked list
- * <--[ ]
  *    [ ]-->
+ * <--[ ]
  */
 struct ja_list_head {
 	struct ja_list_head *next, *prev;
@@ -23,8 +23,8 @@ struct ja_hlist_head {
 /**
  * hash table list node
  *
- * <--[ ]
  *    [ ]-->
+ * <--[ ]
  */
 struct ja_hlist_node {
 	struct ja_hlist_node *next, **pprev;
@@ -47,8 +47,16 @@ struct ja_hlist_node {
 
 
 #define JA_READ_ONCE(x) (*(volatile typeof(x) *) &(x))
-#define JA_WRITE_ONCE(x) ((*(volatile typeof(x) *) &(x)) = (val))
 
+#define __JA_WRITE_ONCE(x, val)						\
+do {									\
+	*(volatile typeof(x) *)&(x) = (val);				\
+} while (0)
+
+#define JA_WRITE_ONCE(x, val)						\
+do {									\
+	__JA_WRITE_ONCE(x, val);						\
+} while (0)
 
 /*
  * Circular doubly linked list implementation.
@@ -72,75 +80,67 @@ static inline void JA_INIT_LIST_HEAD(struct ja_list_head *list)
 	JA_WRITE_ONCE(list->prev, list);
 }
 
-static inline bool __ja_list_add_valid(struct ja_list_head *new,
+static inline bool __ja_list_add_valid(struct ja_list_head *newr,
 				struct ja_list_head *prev,
 				struct ja_list_head *next)
 {
 	return true;
 }
+/*
 static inline bool __ja_list_del_entry_valid(struct ja_list_head *entry)
 {
 	return true;
 }
-
-#define __JA_WRITE_ONCE(x, val)						\
-do {									\
-	*(volatile typeof(x) *)&(x) = (val);				\
-} while (0)
-
-#define JA_WRITE_ONCE(x, val)						\
-do {									\
-	__JA_WRITE_ONCE(x, val);						\
-} while (0)
-
+*/
 
 /*
- * Insert a new entry between two known consecutive entries.
+ * Insert a newr entry between two known consecutive entries.
  */
-static inline void __ja_list_add(struct ja_list_head *new,
+static inline void __ja_list_add(struct ja_list_head *newr,
 			      struct ja_list_head *prev,
 			      struct ja_list_head *next)
 {
-	if (!__ja_list_add_valid(new, prev, next))
+	/*
+	if (!__ja_list_add_valid(newr, prev, next))
 		return;
+  */
+	next->prev = newr;
 
-	next->prev = new;
+	newr->next = next;
+	newr->prev = prev;
 
-	new->next = next;
-	new->prev = prev;
-
-	JA_WRITE_ONCE(prev->next, new);
+	JA_WRITE_ONCE(prev->next, newr);
 }
 
 /**
- * ja_list_add - add a new entry
- * @new: new entry to be added
+ * ja_list_add - add a newr entry
+ * @newr: newr entry to be added
  * @head: list head to add it after
- * ¼ÓÔÚÍ·µÄºóÃæ
+ * ï¿½ï¿½ï¿½ï¿½Í·ï¿½Äºï¿½ï¿½ï¿½
  */
-static inline void ja_list_add(struct ja_list_head *new, struct ja_list_head *head)
+static inline void ja_list_add(struct ja_list_head *newr, struct ja_list_head *head)
 {
-	__ja_list_add(new, head, head->next);
+	__ja_list_add(newr, head, head->next);
 }
 
 
 /**
- * ja_list_add_tail - add a new entry
- * @new: new entry to be added
+ * ja_list_add_tail - add a newr entry
+ * @newr: newr entry to be added
  * @tail: list head to add it before
  *
- * Insert a new entry before the specified tail.
- * ¼ÓÔÚÎ²°ÍÇ°Ãæ
+ * Insert a newr entry before the specified tail.
+ * ï¿½ï¿½ï¿½ï¿½Î²ï¿½ï¿½Ç°ï¿½ï¿½
  */
-static inline void ja_list_add_tail(struct ja_list_head *new, struct ja_list_head *tail)
+static inline void ja_list_add_tail(struct ja_list_head *newr, struct ja_list_head *tail)
 {
-	__ja_list_add(new, tail->prev, tail);
+	__ja_list_add(newr, tail->prev, tail);
 }
 
 /*
  * Delete a list entry by making the prev/next entries
  * point to each other.
- * ÇÐµô µÚÒ»¸ö ½ÚµãºóÃæ£¬¹ÒÉÏµÚ¶þ¸ö½Úµã
+ * ï¿½Ðµï¿½ ï¿½ï¿½Ò»ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ï¿½æ£¬ï¿½ï¿½ï¿½ÏµÚ¶ï¿½ï¿½ï¿½ï¿½Úµï¿½
  */
 static inline void __ja_list_del(struct ja_list_head * prev, struct ja_list_head * next)
 {
@@ -160,9 +160,9 @@ static inline void __ja_list_del_clearprev(struct ja_list_head *entry)
 
 static inline void __ja_list_del_entry(struct ja_list_head *entry)
 {
-	if (!__ja_list_del_entry_valid(entry))
+	/*if (!__ja_list_del_entry_valid(entry))
 		return;
-
+  */
 	__ja_list_del(entry->prev, entry->next);
 }
 
@@ -172,38 +172,41 @@ static inline void __ja_list_del_entry(struct ja_list_head *entry)
  * Note: list_empty() on entry does not return true after this, the entry is
  * in an undefined state.
  */
+#define JA_LIST_POISION_POINTER_DELTA 0
+#define JA_LIST_POISON1 ((void *)(0x100 + JA_LIST_POISION_POINTER_DELTA))
+#define JA_LIST_POISON2 ((void *)(0x122 + JA_LIST_POISION_POINTER_DELTA))
 static inline void ja_list_del(struct ja_list_head *entry)
 {
 	__ja_list_del_entry(entry);
-	entry->next = LIST_POISON1;
-	entry->prev = LIST_POISON2;
+	entry->next = (ja_list_head *)JA_LIST_POISON1;
+	entry->prev = (ja_list_head *)JA_LIST_POISON2;
 }
 
 /**
- * ja_list_replace - replace old entry by new one
+ * ja_list_replace - replace old entry by newr one
  * @old : the element to be replaced
- * @new : the new element to insert
+ * @newr : the newr element to insert
  *
  */
 static inline void ja_list_replace(struct ja_list_head *old,
-				struct list_head *new)
+				struct ja_list_head *newr)
 {
-	new->next = old->next;
-	new->next->prev = new;
-	new->prev = old->prev;
-	new->prev->next = new;
+	newr->next = old->next;
+	newr->next->prev = newr;
+	newr->prev = old->prev;
+	newr->prev->next = newr;
 }
 
 /**
- * ja_list_replace_init - replace old entry by new one and initialize the old one
+ * ja_list_replace_init - replace old entry by newr one and initialize the old one
  * @old : the element to be replaced
- * @new : the new element to insert
+ * @newr : the newr element to insert
  *
  */
 static inline void ja_list_replace_init(struct ja_list_head *old,
-				     struct ja_list_head *new)
+				     struct ja_list_head *newr)
 {
-	ja_list_replace(old, new);
+	ja_list_replace(old, newr);
 	JA_INIT_LIST_HEAD(old);
 }
 
@@ -212,8 +215,8 @@ static inline void ja_list_replace_init(struct ja_list_head *old,
  * @entry1: the location to place entry2
  * @entry2: the location to place entry1
  */
-static inline void list_swap(struct list_head *entry1,
-			     struct list_head *entry2)
+static inline void ja_list_swap(struct ja_list_head *entry1,
+			     struct ja_list_head *entry2)
 {
 	struct ja_list_head *pos = entry2->prev;
 
@@ -228,7 +231,7 @@ static inline void list_swap(struct list_head *entry1,
  * ja_list_del_init - deletes entry from list and reinitialize it.
  * @entry: the element to delete from the list.
  */
-static inline void ja_list_del_init(struct list_head *entry)
+static inline void ja_list_del_init(struct ja_list_head *entry)
 {
 	__ja_list_del_entry(entry);
 	JA_INIT_LIST_HEAD(entry);
@@ -239,7 +242,7 @@ static inline void ja_list_del_init(struct list_head *entry)
  * @list: the entry to move
  * @head: the head that will precede our entry
  */
-static inline void ja_list_move(struct list_head *list, struct list_head *head)
+static inline void ja_list_move(struct ja_list_head *list, struct ja_list_head *head)
 {
 	__ja_list_del_entry(list);
 	ja_list_add(list, head);
@@ -249,7 +252,7 @@ static inline void ja_list_move(struct list_head *list, struct list_head *head)
  * ja_list_move_tail - delete from one list and add as another's tail
  * @list: the entry to move
  * @head: the head that will follow our entry
- * ÔÚÎ²°ÍµÄÇ°Ò»¸ö¡£
+ * ï¿½ï¿½Î²ï¿½Íµï¿½Ç°Ò»ï¿½ï¿½ï¿½ï¿½
  */
 static inline void ja_list_move_tail(struct ja_list_head *list,
 				  struct ja_list_head *tail)
@@ -317,9 +320,10 @@ static inline int ja_list_is_head(const struct ja_list_head *list, const struct 
  */
 static inline int ja_list_empty(const struct ja_list_head *head)
 {
-	return READ_ONCE(head->next) == head;
+	return JA_READ_ONCE(head->next) == head;
 }
 
+#if 0
 /**
  * ja_list_del_init_careful - deletes entry from list and reinitialize it.
  * @entry: the element to delete from the list.
@@ -356,6 +360,7 @@ static inline int ja_list_empty_careful(const struct ja_list_head *head)
 	struct ja_list_head *next = smp_load_acquire(&head->next);
 	return ja_list_is_head(next, head) && (next == READ_ONCE(head->prev));
 }
+#endif
 
 /**
  * ja_list_rotate_left - rotate the list to the left
@@ -373,10 +378,10 @@ static inline void ja_list_rotate_left(struct ja_list_head *head)
 
 /**
  * ja_list_rotate_to_front() - Rotate list to specific item.
- * @list: The desired new front of the list.
+ * @list: The desired newr front of the list.
  * @head: The head of the list.
  *
- * Rotates list so that @list becomes the new front of the list.
+ * Rotates list so that @list becomes the newr front of the list.
  */
 static inline void ja_list_rotate_to_front(struct ja_list_head *list,
 					struct ja_list_head *head)
@@ -401,18 +406,18 @@ static inline int ja_list_is_singular(const struct ja_list_head *head)
 static inline void __ja_list_cut_position(struct ja_list_head *list,
 		struct ja_list_head *head, struct ja_list_head *entry)
 {
-	struct ja_list_head *new_first = entry->next;
+	struct ja_list_head *newr_first = entry->next;
 	list->next = head->next;
 	list->next->prev = list;
 	list->prev = entry;
 	entry->next = list;
-	head->next = new_first;
-	new_first->prev = head;
+	head->next = newr_first;
+	newr_first->prev = head;
 }
 
 /**
  * ja_list_cut_position - cut a list into two
- * @list: a new list to add all removed entries
+ * @list: a newr list to add all removed entries
  * @head: a list with entries
  * @entry: an entry within head, could be the head itself
  *	and if so we won't cut the list
@@ -423,10 +428,10 @@ static inline void __ja_list_cut_position(struct ja_list_head *list,
  * should be an empty list or a list you do not care about
  * losing its data.
  *
- * position - ¿³µôÒ»¸ö ,¾ÍÊÇentryÕâ¸ö¡£
+ * position - ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ ,ï¿½ï¿½ï¿½ï¿½entryï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  */
-static inline void ja_list_cut_position(struct list_head *list,
-		struct list_head *head, struct list_head *entry)
+static inline void ja_list_cut_position(struct ja_list_head *list,
+		struct ja_list_head *head, struct ja_list_head *entry)
 {
 	if (ja_list_empty(head))
 		return;
@@ -440,7 +445,7 @@ static inline void ja_list_cut_position(struct list_head *list,
 
 /**
  * ja_list_cut_before - cut a list into two, before given entry
- * @list: a new list to add all removed entries
+ * @list: a newr list to add all removed entries
  * @head: a list with entries
  * @entry: an entry within head, could be the head itself
  *
@@ -451,9 +456,9 @@ static inline void ja_list_cut_position(struct list_head *list,
  * its data.
  * If @entry == @head, all entries on @head are moved to
  * @list.
- * 
- * ¿³µô head Ö®ºó£¬ entry Ö®Ç°µÄ½Úµã£¬·Ålist ÉÏ¡£
- * Head Ö®ºóÖ±½Ó ½ÓÉÏentry.
+ *
+ * ï¿½ï¿½ï¿½ï¿½ head Ö®ï¿½ï¿½ï¿½ï¿½ entry Ö®Ç°ï¿½Ä½Úµã£¬ï¿½ï¿½list ï¿½Ï¡ï¿½
+ * Head Ö®ï¿½ï¿½Ö±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½entry.
  */
 static inline void ja_list_cut_before(struct ja_list_head *list,
 				   struct ja_list_head *head,
@@ -469,7 +474,7 @@ static inline void ja_list_cut_before(struct ja_list_head *list,
 	/* cut before :-)*/
 	list->prev = entry->prev;
 	list->prev->next = list;
-	
+
 	head->next = entry;
 	entry->prev = head;
 }
@@ -478,7 +483,7 @@ static inline void __ja_list_splice(const struct ja_list_head *list,
 				 struct ja_list_head *prev,
 				 struct ja_list_head *next)
 {
-	/* µÚÒ»¸ö£¬²»ÊÇlist ½Úµã¡£ÊÇlist µÄÏÂÒ»¸ö½Úµãà¸¡£*/
+	/* ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½list ï¿½Úµã¡£ï¿½ï¿½list ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Úµï¿½à¸¡ï¿½*/
 	struct ja_list_head *first = list->next;
 	struct ja_list_head *last = list->prev;
 
@@ -491,10 +496,10 @@ static inline void __ja_list_splice(const struct ja_list_head *list,
 
 /**
  * ja_list_splice - join two lists, this is designed for stacks
- * @list: the new list to add.
+ * @list: the newr list to add.
  * @head: the place to add it in the first list.
  *
- * ÐÂµÄË«Á´±íÕ³½ÓÔÚ ÒÑÓÐÁ´±íµÄhead ºÍhead->next Ö®¼ä
+ * ï¿½Âµï¿½Ë«ï¿½ï¿½ï¿½ï¿½Õ³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½head ï¿½ï¿½head->next Ö®ï¿½ï¿½
  */
 static inline void ja_list_splice(const struct ja_list_head *list,
 				struct ja_list_head *head)
@@ -505,12 +510,12 @@ static inline void ja_list_splice(const struct ja_list_head *list,
 
 /**
  * ja_list_splice_tail - join two lists, each list being a queue
- * @list: the new list to add.
+ * @list: the newr list to add.
  * @head: the place to add it in the first list.
  *
- * ÐÂµÄË«Á´±íÕ³½ÓÔÚ ÒÑÓÐÁ´±íµÄhead Î»ÖÃÇ°Ãæ */
-static inline void ja_list_splice_tail(struct list_head *list,
-				struct list_head *head)
+ * ï¿½Âµï¿½Ë«ï¿½ï¿½ï¿½ï¿½Õ³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½head Î»ï¿½ï¿½Ç°ï¿½ï¿½ */
+static inline void ja_list_splice_tail(struct ja_list_head *list,
+				struct ja_list_head *head)
 {
 	if (!ja_list_empty(list))
 		__ja_list_splice(list, head->prev, head);
@@ -518,13 +523,13 @@ static inline void ja_list_splice_tail(struct list_head *list,
 
 /**
  * ja_list_splice_init - join two lists and reinitialise the emptied list.
- * @list: the new list to add.
+ * @list: the newr list to add.
  * @head: the place to add it in the first list.
  *
  * The list at @list is reinitialised
  *
- * ½«´óÓÚÒ»¸ö½ÚµãµÄ list£¬³ýÈ¥µÚÒ»¸ö½ÚµãÖ®ºóµÄËùÓÐ½Úµã£¬ ²åµ½head ºÍhead->next Ö®¼ä£¬
- * Í¬Ê±³õÊ¼»¯Ò»ÏÂlistÕâ¸öÊ×½Úµã
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ listï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Úµï¿½Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½Úµã£¬ ï¿½åµ½head ï¿½ï¿½head->next Ö®ï¿½ä£¬
+ * Í¬Ê±ï¿½ï¿½Ê¼ï¿½ï¿½Ò»ï¿½ï¿½listï¿½ï¿½ï¿½ï¿½ï¿½×½Úµï¿½
  */
 static inline void ja_list_splice_init(struct ja_list_head *list,
 				    struct ja_list_head *head)
@@ -537,7 +542,7 @@ static inline void ja_list_splice_init(struct ja_list_head *list,
 
 /**
  * list_splice_tail_init - join two lists and reinitialise the emptied list
- * @list: the new list to add.
+ * @list: the newr list to add.
  * @head: the place to add it in the first list.
  *
  * Each of the lists is a queue.
@@ -555,9 +560,9 @@ static inline void ja_list_splice_tail_init(struct ja_list_head *list,
 
 #define JA_LIST_EXPLAIN_PART1 0x1
 /**
- * ½ÓÏÂÀ´µÄ²¿·Ö£¬ÓÐÁ½ÖÖÇé¿ö ´øentry ºÍ²»´øentry
- * list_for_each :ÕâÀïµÄpos ºÍ head ¶¼ÊÇlist_head Ö¸Õë
- * list_for_each_entry :ÕâÀïµÄpos ÊÇ´ó½á¹¹ÌåÖ¸Õë¡£head ÊÇ list_head Ö¸Õë
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä²ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½entry ï¿½Í²ï¿½ï¿½ï¿½entry
+ * list_for_each :ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pos ï¿½ï¿½ head ï¿½ï¿½ï¿½ï¿½list_head Ö¸ï¿½ï¿½
+ * list_for_each_entry :ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pos ï¿½Ç´ï¿½ï¿½á¹¹ï¿½ï¿½Ö¸ï¿½ë¡£head ï¿½ï¿½ list_head Ö¸ï¿½ï¿½
  */
 
 /**
@@ -653,7 +658,7 @@ static inline void ja_list_splice_tail_init(struct ja_list_head *list,
  * @head:	the head for your list.
  *
  * pos and head all pointer .explaination from wangmin
- *   pos is temporary varialble 
+ *   pos is temporary varialble
  * & head is more global variable compare to pos.
  */
 #define ja_list_for_each(pos, head) \
@@ -724,8 +729,8 @@ static inline void ja_list_splice_tail_init(struct ja_list_head *list,
  * @head:	the head for your list.
  * @member:	the name of the list_head within the struct.
  *
- * head ÊÇµ¥¶À¶¨Òå³öÀ´µÄÒ»¸ö¡£¶ÀÁ¢ÓÚ´ó½á¹¹µÄÐ¡bitou
- * 
+ * head ï¿½Çµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½á¹¹ï¿½ï¿½Ð¡bitou
+ *
  *       [ ]     [ ]     [ ]
  * *<--->[*]<--->[*]<--->[*]
  *		 [ ]	 [ ]	 [ ]
@@ -758,7 +763,7 @@ static inline void ja_list_splice_tail_init(struct ja_list_head *list,
  *
  * Prepares a pos entry for use as a start point in ja_list_for_each_entry_continue().
  *
- * È·ÈÏÒ»ÏÂ½á¹¹ÌåÎ»ÖÃ£¬¸øÖµpos 
+ * È·ï¿½ï¿½Ò»ï¿½Â½á¹¹ï¿½ï¿½Î»ï¿½Ã£ï¿½ï¿½ï¿½Öµpos
  * pos-->[ ]
  *       [ ]
  *       [ ] list_head member
@@ -775,7 +780,7 @@ static inline void ja_list_splice_tail_init(struct ja_list_head *list,
  * Continue to iterate over list of given type, continuing after
  * the current position.
  *
- * pos ´ó½á¹¹ÌåÖ¸Õë £¬
+ * pos ï¿½ï¿½ï¿½á¹¹ï¿½ï¿½Ö¸ï¿½ï¿½ ï¿½ï¿½
  */
 #define ja_list_for_each_entry_continue(pos, head, member) 		\
 	for (pos = ja_list_next_entry(pos, member);			\
@@ -953,17 +958,17 @@ static inline int ja_hlist_empty(const struct ja_hlist_head *h)
 	return !JA_READ_ONCE(h->first);
 }
 
-static inline void __ja_hlist_del(struct hlist_node *n)
+static inline void __ja_hlist_del(struct ja_hlist_node *n)
 {
-	struct hlist_node *next = n->next;
-	struct hlist_node **pprev = n->pprev;
+	struct ja_hlist_node *next = n->next;
+	struct ja_hlist_node **pprev = n->pprev;
 
 	JA_WRITE_ONCE(*pprev, next);
 	if (next)
 		JA_WRITE_ONCE(next->pprev, pprev);
 }
 
-static inline void __jaorg_hlist_del(struct hlist_node *n)
+static inline void __jaorg_hlist_del(struct ja_hlist_node *n)
 {
 	JA_WRITE_ONCE(*(n->pprev), n->next);
 	if (n->next)
@@ -980,8 +985,8 @@ static inline void __jaorg_hlist_del(struct hlist_node *n)
 static inline void ja_hlist_del(struct ja_hlist_node *n)
 {
 	__ja_hlist_del(n);
-	n->next = LIST_POISON1;
-	n->pprev = LIST_POISON2;
+	n->next = (ja_hlist_node *)JA_LIST_POISON1;
+	n->pprev = (ja_hlist_node **)JA_LIST_POISON2;
 }
 
 /**
@@ -990,7 +995,7 @@ static inline void ja_hlist_del(struct ja_hlist_node *n)
  *
  * Note that this function leaves the node in unhashed state.
  */
-static inline void ja_hlist_del_init(struct hlist_node *n)
+static inline void ja_hlist_del_init(struct ja_hlist_node *n)
 {
 	if (!ja_hlist_unhashed(n)) {
 		__ja_hlist_del(n);
@@ -999,16 +1004,16 @@ static inline void ja_hlist_del_init(struct hlist_node *n)
 }
 
 /**
- * ja_hlist_add_head - add a new entry at the beginning of the hlist
- * @n: new entry to be added
+ * ja_hlist_add_head - add a newr entry at the beginning of the hlist
+ * @n: newr entry to be added
  * @h: hlist head to add it after
  *
- * Insert a new entry after the specified head.
+ * Insert a newr entry after the specified head.
  * This is good for implementing stacks.
  */
 static inline void hlist_add_head(struct ja_hlist_node *n, struct ja_hlist_head *h)
 {
-	struct hlist_node *first = h->first;
+	struct ja_hlist_node *first = h->first;
 	JA_WRITE_ONCE(n->next, first);
 	if (first)
 		JA_WRITE_ONCE(first->pprev, &n->next);
@@ -1017,12 +1022,12 @@ static inline void hlist_add_head(struct ja_hlist_node *n, struct ja_hlist_head 
 }
 
 /**
- * ja_hlist_add_before - add a new entry before the one specified
- * @n: new entry to be added
+ * ja_hlist_add_before - add a newr entry before the one specified
+ * @n: newr entry to be added
  * @next: hlist node to add it before, which must be non-NULL
  */
-static inline void ja_hlist_add_before(struct hlist_node *n,
-				    struct hlist_node *next)
+static inline void ja_hlist_add_before(struct ja_hlist_node *n,
+				    struct ja_hlist_node *next)
 {
 	JA_WRITE_ONCE(n->pprev, next->pprev);
 	JA_WRITE_ONCE(n->next, next);
@@ -1031,12 +1036,12 @@ static inline void ja_hlist_add_before(struct hlist_node *n,
 }
 
 /**
- * ja_hlist_add_behind - add a new entry after the one specified
- * @n: new entry to be added
+ * ja_hlist_add_behind - add a newr entry after the one specified
+ * @n: newr entry to be added
  * @prev: hlist node to add it after, which must be non-NULL
  */
-static inline void ja_hlist_add_behind(struct hlist_node *n,
-				    struct hlist_node *prev)
+static inline void ja_hlist_add_behind(struct ja_hlist_node *n,
+				    struct ja_hlist_node *prev)
 {
 	JA_WRITE_ONCE(n->next, prev->next);
 	JA_WRITE_ONCE(prev->next, n);
@@ -1054,7 +1059,7 @@ static inline void ja_hlist_add_behind(struct hlist_node *n,
  * The point of this is to allow things like hlist_del() to work correctly
  * in cases where there is no list.
  */
-static inline void ja_hlist_add_fake(struct hlist_node *n)
+static inline void ja_hlist_add_fake(struct ja_hlist_node *n)
 {
 	n->pprev = &n->next;
 }
@@ -1063,7 +1068,7 @@ static inline void ja_hlist_add_fake(struct hlist_node *n)
  * ja_hlist_fake: Is this node a fake hlist?
  * @h: Node to check for being a self-referential fake hlist.
  */
-static inline bool ja_hlist_fake(struct hlist_node *h)
+static inline bool ja_hlist_fake(struct ja_hlist_node *h)
 {
 	return h->pprev == &h->next;
 }
@@ -1085,17 +1090,17 @@ ja_hlist_is_singular_node(struct ja_hlist_node *n, struct ja_hlist_head *h)
 /**
  * ja_hlist_move_list - Move an hlist
  * @old: hlist_head for old list.
- * @new: hlist_head for new list.
+ * @newr: hlist_head for newr list.
  *
  * Move a list from one list head to another. Fixup the pprev
  * reference of the first entry if it exists.
  */
 static inline void ja_hlist_move_list(struct ja_hlist_head *old,
-				   struct ja_hlist_head *new)
+				   struct ja_hlist_head *newr)
 {
-	new->first = old->first;
-	if (new->first)
-		new->first->pprev = &new->first;
+	newr->first = old->first;
+	if (newr->first)
+		newr->first->pprev = &newr->first;
 	old->first = NULL;
 }
 
@@ -1157,6 +1162,3 @@ static inline void ja_hlist_move_list(struct ja_hlist_head *old,
 
 
 #endif
-
-
-
