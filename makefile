@@ -16,12 +16,12 @@ math: $(testobj) $(libobj)
 #2.Define the lib related part
 lib: dot_so dot_a
 dot_so:
-	g++ $(libsrc) -fPIC -shared -o libmathimatic.so -I./ -I./include
+	g++ $(libsrc) -fPIC -shared -o libmathimatic.so -I./ -I./include -I./util
 dot_a: $(libobj)
 	ar rc libmathimatic.a $(libobj)
 
 %.o:%.cpp
-	g++ -o $@ -c $< -std=c++11 -I./ -I./include
+	g++ -o $@ -c $< -std=c++11 -I./ -I./include -I./util
 
 #3. Define Installation for this lib
 install:
