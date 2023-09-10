@@ -29,7 +29,7 @@ dot_a: $(libobj)
 	ar rc libmathimatic.a $(libobj)
 
 %.o:%.cpp
-	g++ -o $@ -c $< -fpermissive -I./ -I./include -I./util
+	g++ -o $@ -c $< -fpermissive -Wattributes -I./ -I./include -I./util
 
 #3. Define Installation for this lib
 install:

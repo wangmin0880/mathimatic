@@ -834,10 +834,10 @@ static inline void ja_list_splice_tail_init(struct ja_list_head *list,
  * @member:	the name of the list_head within the struct.
  */
 #define ja_list_for_each_entry_safe(pos, n, head, member)			\
-	for (pos = list_first_entry(head, typeof(*pos), member),	\
-		n = list_next_entry(pos, member);			\
-	     !list_entry_is_head(pos, head, member); 			\
-	     pos = n, n = list_next_entry(n, member))
+	for (pos = ja_list_first_entry(head, typeof(*pos), member),	\
+		n = ja_list_next_entry(pos, member);			\
+	     !ja_list_entry_is_head(pos, head, member); 			\
+	     pos = n, n = ja_list_next_entry(n, member))
 
 /**
  * ja_list_for_each_entry_safe_continue - continue list iteration safe against removal
