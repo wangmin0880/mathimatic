@@ -86,7 +86,7 @@ public:
 	  ja_rb_link_node(&frag->node, parent, p);
 	  ja_rb_insert_color(&frag->node, p_fragtree);
   
-	  printf("min_debug: add frag f=%d with frag_node %x to rbtree %x \n",
+	  printf("add frag f=%d within inode %x to rbtree %x \n",
 	          f, frag, p_fragtree->rb_node);
 	  return frag;
   }
