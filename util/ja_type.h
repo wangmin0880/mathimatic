@@ -1,6 +1,16 @@
 #ifndef __JA_TYPE_H__
 #define __JA_TYPE_H__
 
+typedef unsigned char		u8;
+typedef unsigned short		u16;
+typedef unsigned int		u32;
+typedef unsigned long long	u64;
+typedef signed char		s8;
+typedef short			s16;
+typedef int			s32;
+typedef long long		s64;
+
+/* or */
 typedef unsigned char		ja_u8;
 typedef unsigned short		ja_u16;
 typedef unsigned int		ja_u32;
