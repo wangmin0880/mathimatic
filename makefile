@@ -8,6 +8,10 @@ testobj=$(patsubst %.cpp, %.o, $(testsrc))
 testutilsrc=$(wildcard ./testutil/*.cpp)
 testutilobj=$(patsubst %.cpp, %.o, $(testutilsrc))
 
+utilsrc=$(wildcard ./util/*.cpp)
+utilobj=$(patsubst %.cpp, %.o, $(utilsrc))
+
+
 #1.Define the targets
 target:lib app
 
@@ -16,9 +20,9 @@ math: $(testobj) $(libobj)
 #	g++ -o math $(testobj) -L. -lmathimatic
 	g++ -o math $(testobj) $(libobj)
 
-jatool: $(testutilobj) $(libobj)
+jatool: $(testutilobj) $(libobj) $(utilobj)
 	#	g++ -o math $(testobj) -L. -lmathimatic
-	g++ -o jatool $(testutilobj) $(libobj)
+	g++ -o jatool $(testutilobj) $(libobj) $(utilobj)
 
 
 #2.Define the lib related part
@@ -41,5 +45,5 @@ install:
 	sudo ldconfig
 
 clean:
-	rm $(libobj) $(testobj) $(testutilobj) math jatool
+	rm $(libobj) $(testobj) $(testutilobj) $(utilobj) math jatool
 	rm *.a *.so
