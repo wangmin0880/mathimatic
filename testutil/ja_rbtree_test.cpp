@@ -1,5 +1,5 @@
 #include "stdio.h"
-
+#include "pthread.h"
 /*1. target lib */
 #include "math.h"
 #include "area.h"
@@ -90,10 +90,50 @@ public:
 	          f, frag, p_fragtree->rb_node);
 	  return frag;
   }
+  
+  static int ceph_fill_fragtree(ja_rb_root * p_root)
+  {
+	  struct ceph_inode_frag *frag = NULL;
+	  struct ja_rb_node *rb_node;
+ 	  static pthread_mutex_t _mutex = PTHREAD_MUTEX_INITIALIZER;
+	  pthread_mutex_lock(&_mutex);
+
+	  rb_node = ja_rb_first(p_root);
+	  while (rb_node) {
+		  frag = ja_rb_entry(rb_node, struct ceph_inode_frag, node);
+		  rb_node = ja_rb_next(rb_node);
+		  /* delete node */
+		  if (frag->frag %10 != 0) {
+			  printf("free the node which frag %d .\n", frag->frag);
+			  ja_rb_erase(&frag->node, p_root);
+			  ja_free(frag);
+		  }
+	  }
+
+	  rb_node = ja_rb_first(p_root);
+	  while (rb_node) {
+		  frag = ja_rb_entry(rb_node, struct ceph_inode_frag, node);
+		  printf("free the node %x with frag %d .\n",
+				  rb_node, frag->frag);
+		  rb_node = ja_rb_next(rb_node);
+		  /* delete node */
+		  if (frag->frag %10 == 0) {
+			  ja_rb_erase(&frag->node, p_root);
+			  ja_free(frag);
+		  }
+	  }
+	  pthread_mutex_unlock(&_mutex);
+	  return 0;
+  }
+
   int test_ja_rbtree(int count){
-  	for(int i = 0; i < count; i++){
+  	int i = 0;
+  	for(i = 0; i < count; i++){
 	  __get_or_create_frag(&i_fragtree, i);
 	}
+	
+	ceph_fill_fragtree(&i_fragtree);
+	
     return 1;
   }
   int mathimatic_call(){
