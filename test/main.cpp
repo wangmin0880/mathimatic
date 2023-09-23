@@ -2,6 +2,7 @@
 
 #include "math.h"
 #include "area.h"
+#include "taylor.h"
 
 #include "test.h"
 
@@ -84,13 +85,44 @@ class Math_square_root_test: public Math, public Test
   public:
   void test()
   {
-    printf("square root y = sqrt x calculate x = 16, result : %f , time cost : %f nsec\n",
-        math_square_root(16),
+    printf("square root y = sqrt x calculate x = 2, result : %f , time cost : %f nsec\n",
+        math_square_root(2),
         calculate_time_spend_nsec());
   }
   int mathimatic_call()
   {
-    return math_square_root(16);
+    return math_square_root(2);
+  }
+};
+
+class Taylor_sin_test: public Taylor, public Test
+{
+  public:
+  void test()
+  {
+    printf("Taylor sin y = sin(x) calculate x = 45, result : %f , time cost : %f nsec\n",
+        math_sin(45),
+        calculate_time_spend_nsec());
+  }
+  void full_test()
+  {
+    double dDegree = 30;
+    for(int i = 0; i<= 360; i++ ){
+      dDegree = i;
+      printf("sin(%f) = %.6lf \n", dDegree, ja_sin(dDegree));
+    }
+    printf("Taylor sin y = sin(x) calculate x from 0 to 360, time cost : %f nsec\n",
+        calculate_time_spend_nsec());
+  }
+  int mathimatic_call()
+  {
+    double dDegree = 30;
+    for(int i = 0; i<= 360; i++ ){
+      dDegree = i;
+      ja_sin(dDegree);
+      //printf("sin(%f) = %.6lf \n", dDegree, ja_sin(dDegree));
+    }
+    return 0;
   }
 };
 
@@ -113,5 +145,10 @@ int main()
 
   Math_square_root_test square_root;
   square_root.test();
+
+  Taylor_sin_test sin;
+  sin.test();
+  sin.full_test();
+
   return 0;
 }
