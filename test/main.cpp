@@ -97,15 +97,20 @@ class Math_square_root_test: public Math, public Test
 
 class Taylor_sin_test: public Taylor, public Test
 {
+  int casenum = 0;
   public:
   void test()
   {
+    casenum = 0;
+
     printf("Taylor sin y = sin(x) calculate x = 45, result : %f , time cost : %f nsec\n",
         math_sin(45),
         calculate_time_spend_nsec());
   }
   void full_test()
   {
+    casenum = 1;
+
     double dDegree = 30;
     for(int i = 0; i<= 360; i++ ){
       dDegree = i;
@@ -116,11 +121,139 @@ class Taylor_sin_test: public Taylor, public Test
   }
   int mathimatic_call()
   {
+    if(casenum == 0){
+      double dDegree = 45;
+      ja_sin(dDegree);
+    }
+
+    if(casenum == 1){
+      double dDegree = 0;
+      for(int i = 0; i<= 360; i++ ){
+        dDegree = i;
+        ja_sin(dDegree);
+        //printf("sin(%f) = %.6lf \n", dDegree, ja_sin(dDegree));
+      }
+    }
+
+    return 0;
+  }
+};
+
+class Taylor_cos_test: public Taylor, public Test
+{
+  int casenum = 0;
+  public:
+  void test()
+  {
+    casenum = 0;
+    printf("Taylor cos y = cos(x) calculate x = 135.125, result : %f , time cost : %f nsec\n",
+        math_cos(135.125),
+        calculate_time_spend_nsec());
+  }
+  void full_test()
+  {
+    casenum = 1;
     double dDegree = 30;
     for(int i = 0; i<= 360; i++ ){
       dDegree = i;
-      ja_sin(dDegree);
-      //printf("sin(%f) = %.6lf \n", dDegree, ja_sin(dDegree));
+      printf("cos(%f) = %.6lf \n", dDegree, ja_cos(dDegree));
+    }
+    printf("Taylor cos y = cos(x) calculate x from 0 to 360, time cost : %f nsec\n",
+        calculate_time_spend_nsec());
+  }
+  int mathimatic_call()
+  {
+    if(casenum == 0){
+      double dDegree = 135.125;
+      ja_cos(dDegree);
+    }
+    if(casenum == 1){
+      double dDegree = 30;
+      for(int i = 0; i<= 360; i++ ){
+        dDegree = i;
+        ja_cos(dDegree);
+      }
+
+    }
+    return 0;
+  }
+};
+
+class Taylor_e_test: public Taylor, public Test
+{
+  int casenum = 0;
+  public:
+  void test()
+  {
+    casenum = 0;
+    printf("Taylor e y = e(x) calculate x = 3.333, result : %f , time cost : %f nsec\n",
+        math_e(3.333),
+        calculate_time_spend_nsec());
+  }
+  void full_test()
+  {
+    casenum = 1;
+    double dDegree = -5;
+    for(int i = 0; i<= 100; i++ ){
+      dDegree += 0.1;
+      printf("e(%f) = %.6lf \n", dDegree, ja_e(dDegree));
+    }
+    printf("Taylor e y = e(x) calculate x from -5 to 5; step 0.1 total 100 times, time cost : %f nsec\n",
+        calculate_time_spend_nsec());
+  }
+  int mathimatic_call()
+  {
+    if(casenum == 0){
+      double dDegree = 3.333;
+      math_e(dDegree);
+    }
+    if(casenum == 1){
+      double dDegree = -5.0;
+      for(int i = 0; i<= 100; i++ ){
+        dDegree += 0.1;
+        math_e(dDegree);
+      }
+
+    }
+    return 0;
+  }
+};
+
+class Taylor_ln_test: public Taylor, public Test
+{
+  int casenum = 0;
+  public:
+  void test()
+  {
+    casenum = 0;
+    printf("Taylor ln y = e(x) calculate x = 10, result : %f , time cost : %f nsec\n",
+        math_ln(10),
+        calculate_time_spend_nsec());
+  }
+  void full_test()
+  {
+    casenum = 1;
+    double dDegree = 0.01;
+    for(int i = 0; i<= 500; i++ ){
+      dDegree += 0.01;
+      printf("ln(%f) = %.6lf \n", dDegree, math_ln(dDegree));
+    }
+    printf("Taylor ln y = ln(x) calculate x from 0.01 to 5; step 0.01 total 500 times, time cost : %f nsec\n",
+        calculate_time_spend_nsec());
+  }
+  int mathimatic_call()
+  {
+    if(casenum == 0){
+      double dDegree = 10;
+      math_e(dDegree);
+    }
+    if(casenum == 1){
+      double dDegree = 0.01;
+      for(int i = 0; i<= 500; i++ ){
+        dDegree += 0.01;
+        math_ln(dDegree);
+      }
+
     }
     return 0;
   }
@@ -148,7 +281,19 @@ int main()
 
   Taylor_sin_test sin;
   sin.test();
-  sin.full_test();
+  //sin.full_test();
+
+  Taylor_cos_test cos;
+  cos.test();
+  //cos.full_test();
+
+  Taylor_e_test e;
+  e.test();
+  //e.full_test();
+
+  Taylor_ln_test ln;
+  ln.test();
+  ln.full_test();
 
   return 0;
 }
