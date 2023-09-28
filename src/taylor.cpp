@@ -147,3 +147,22 @@ double Taylor::math_ln(double x)
 {
   return ja_ln(x);
 }
+
+/* x belong to [0,360] */
+double ja_pi(double n)
+{
+  //pi is 3.1415926 535898
+  double x = 0, pi = 0, sum = 0;
+  double num_slipt = n;
+  double step = 1.0/(double)num_slipt;
+  for(double i = 0; i < num_slipt; i+=1){
+    x = (i + 0.5)*step;
+    sum += 4.0/(1.0 + x*x) * step;
+  }
+  pi = sum;
+  return pi;
+}
+
+double Taylor::math_pi(double n){
+  return ja_pi(n);
+}

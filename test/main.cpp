@@ -259,6 +259,46 @@ class Taylor_ln_test: public Taylor, public Test
   }
 };
 
+
+class Taylor_pi_test: public Taylor, public Test
+{
+  int casenum = 0;
+  public:
+  void test()
+  {
+    casenum = 0;
+    printf("Taylor pi y = pi(x) calculate x = 1024, result : %f , time cost : %f nsec\n",
+        math_pi(1024),
+        calculate_time_spend_nsec());
+  }
+  void full_test()
+  {
+    casenum = 1;
+    double n = 2;
+    for(int i = 0; i < 24; i++){
+      math_pi(n);
+      n = n * 2;
+    }
+    printf("Taylor pi y = pi(x) calculate x = 2; step multi 2 total 24 times, time cost : %f nsec\n",
+        calculate_time_spend_nsec());
+  }
+
+  int mathimatic_call()
+  {
+    if(casenum == 0){
+      math_pi(1024);
+    }
+    if(casenum == 1){
+      double n = 2;
+      for(int i = 0; i < 24; i++){
+        printf("pi is %.32lf when split to %f\n", math_pi(n), n );
+        n = n * 2;
+      }
+    }
+    return 0;
+  }
+};
+
 int main()
 {
   Math_test math;
@@ -281,19 +321,23 @@ int main()
 
   Taylor_sin_test sin;
   sin.test();
-  //sin.full_test();
+  sin.full_test();
 
   Taylor_cos_test cos;
   cos.test();
-  //cos.full_test();
+  cos.full_test();
 
   Taylor_e_test e;
   e.test();
-  //e.full_test();
+  e.full_test();
 
   Taylor_ln_test ln;
   ln.test();
   ln.full_test();
+
+  Taylor_pi_test pi;
+  pi.test();
+  pi.full_test();
 
   return 0;
 }
